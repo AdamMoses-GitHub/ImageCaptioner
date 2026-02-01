@@ -1,0 +1,19 @@
+# Core ML dependencies (CUDA version)
+# For CPU-only, use: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# For CUDA 12.1 (default): pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+# Note: Install PyTorch separately first, then run: pip install -r requirements.txt
+torch>=2.1.0
+torchvision>=0.16.0
+transformers>=4.37.0
+accelerate>=0.25.0
+bitsandbytes>=0.42.0
+
+# Image processing
+pillow>=10.0.0
+
+# GUI framework
+PySide6>=6.6.0
+
+# Configuration and utilities
+pyyaml>=6.0
+huggingface-hub>=0.20.0
