@@ -105,10 +105,12 @@ class BatchProcessor:
     
     def get_summary(self) -> Dict[str, Any]:
         """Get processing summary."""
+        total = len(self.results) + len(self.errors)
+        success_rate = len(self.results) / total if total > 0 else 0.0
         return {
             "total_processed": len(self.results),
             "total_errors": len(self.errors),
-            "success_rate": len(self.results) / (len(self.results) + len(self.errors)) if (len(self.results) + len(self.errors)) > 0 else 0,
+            "success_rate": success_rate,
         }
     
     def reset(self):

@@ -12,6 +12,9 @@ from utils.validators import validate_directory, SUPPORTED_FORMATS
 
 logger = logging.getLogger(__name__)
 
+# Cached formatted formats string
+_FORMATS_DISPLAY = ", ".join(sorted(SUPPORTED_FORMATS))
+
 
 class InputPanel(QWidget):
     """Panel for selecting input directory and viewing image count."""
@@ -53,8 +56,7 @@ class InputPanel(QWidget):
         group_layout.addWidget(self.count_label)
         
         # Supported formats info
-        formats_text = ", ".join(sorted(SUPPORTED_FORMATS))
-        formats_label = QLabel(f"<b>Supported formats:</b> {formats_text}")
+        formats_label = QLabel(f"<b>Supported formats:</b> {_FORMATS_DISPLAY}")
         formats_label.setWordWrap(True)
         formats_label.setStyleSheet("font-size: 9pt; color: #555; padding: 5px;")
         group_layout.addWidget(formats_label)

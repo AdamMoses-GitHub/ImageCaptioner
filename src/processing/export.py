@@ -99,10 +99,18 @@ class CaptionExporter:
                         continue
                     
                     # Format path
-                    if relative_to and image_path.is_relative_to(relative_to):
-                        filepath = str(image_path.relative_to(relative_to))
-                    else:
-                        filepath = str(image_path)
+                    filepath = str(image_path)
+                    if relative_to:
+                        try:
+                            # is_relative_to available in Python 3.9+
+                            if image_path.is_relative_to(relative_to):
+                                filepath = str(image_path.relative_to(relative_to))
+                        except (ValueError, AttributeError):
+                            # Fallback for Python < 3.9
+                            try:
+                                filepath = str(image_path.relative_to(relative_to))
+                            except ValueError:
+                                filepath = str(image_path)
                     
                     writer.writerow({
                         'filepath': filepath,

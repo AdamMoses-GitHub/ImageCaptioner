@@ -6,6 +6,8 @@ from typing import List, Dict, Any
 import logging
 import torch
 
+from PIL import Image
+
 from models.llava import LLaVAModel
 from models.downloader import ModelDownloader
 from processing.batch_processor import BatchProcessor
@@ -134,9 +136,6 @@ class InferenceWorker(QThread):
                     file_size = image_path.stat().st_size
                     
                     # Load image and get metadata
-                    from PIL import Image
-                    from processing.image_processor import ImageProcessor
-                    
                     with Image.open(image_path) as img:
                         original_width, original_height = img.size
                         img_format = img.format or 'Unknown'
