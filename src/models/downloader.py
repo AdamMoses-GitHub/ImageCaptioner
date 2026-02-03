@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Optional, Callable
+from typing import Optional, Callable, Tuple
 from huggingface_hub import snapshot_download, model_info
 from huggingface_hub.utils import HfHubHTTPError
 import logging
@@ -33,7 +33,7 @@ class ModelDownloader:
         
         # Default cache locations by platform
         if os.name == "nt":  # Windows
-            cache_dir = Path.home() / ".cache" / "huggingface"
+            cache_dir = Path.home() / "AppData" / "Local" / "huggingface"
         else:  # Unix-like
             cache_dir = Path.home() / ".cache" / "huggingface"
         
@@ -57,7 +57,7 @@ class ModelDownloader:
         except Exception:
             return False
     
-    def get_model_size(self) -> tuple[float, str]:
+    def get_model_size(self) -> Tuple[float, str]:
         """
         Get the estimated size of the model download.
         

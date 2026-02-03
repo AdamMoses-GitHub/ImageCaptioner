@@ -25,9 +25,6 @@ def setup_logger(
     logger = logging.getLogger(name)
     logger.setLevel(level)
     
-    # Remove existing handlers
-    logger.handlers.clear()
-    
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(level)
