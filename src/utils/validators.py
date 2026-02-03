@@ -77,3 +77,33 @@ def validate_max_tokens(value: int) -> Tuple[bool, str]:
     if not 1 <= value <= 2048:
         return False, "Max tokens must be between 1 and 2048"
     return True, ""
+
+
+def validate_top_p(value: float) -> Tuple[bool, str]:
+    """
+    Validate top_p parameter.
+    
+    Args:
+        value: Top-p value
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    if not 0.0 <= value <= 1.0:
+        return False, "Top P must be between 0.0 and 1.0"
+    return True, ""
+
+
+def validate_repetition_penalty(value: float) -> Tuple[bool, str]:
+    """
+    Validate repetition penalty parameter.
+    
+    Args:
+        value: Repetition penalty value
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    if not 1.0 <= value <= 2.0:
+        return False, "Repetition penalty must be between 1.0 and 2.0"
+    return True, ""

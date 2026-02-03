@@ -6,8 +6,6 @@ from typing import List, Dict, Any
 import logging
 import torch
 
-from PIL import Image
-
 from models.llava import LLaVAModel
 from models.downloader import ModelDownloader
 from processing.batch_processor import BatchProcessor
@@ -132,88 +130,46 @@ class InferenceWorker(QThread):
                 self.progress_updated.emit(idx + 1, total_images, image_name)
                 
                 try:
-                    # Get file info
-                    file_size = image_path.stat().st_size
-                    
-                    # Load image and get metadata
-                    with Image.open(image_path) as img:
-                        original_width, original_height = img.size
-                        img_format = img.format or 'Unknown'
-                        original_dimensions = f"{original_width}x{original_height}"
-                        
-                        # Apply resize if enabled
-                        resize_enabled = self.processing_config.get("resize_before_inference", True)
-                        max_dimension = self.processing_config.get("max_dimension", 1024)
-                        cache_resized = self.processing_config.get("cache_resized_images", False)
-                        
-                        # Work with copy to avoid modifying original
-                        processed_img = img.copy()
-                        was_resized = False
-                        resized_dimensions = original_dimensions
-                        
-                        # Apply resize for inference if enabled (smart resize - downscale only)
-                        if resize_enabled:
-                            processed_img, was_resized = ImageProcessor.resize_image_smart(
-                                processed_img, 
-                                max_dimension,
-                                method="lanczos",
-                                allow_upscale=False
-                            )
-                            if was_resized:
-                                new_width, new_height = processed_img.size
-                                resized_dimensions = f"{new_width}x{new_height}"
-                                logger.debug(f"Resized {image_name}: {original_dimensions} → {resized_dimensions}")
-                        
-                        # Cache resized image if option enabled (always resize to target dimension)
-                        if cache_resized and hasattr(self, 'export_dir'):
-                            cache_format = self.processing_config.get("cache_format", "original")
-                            jpeg_quality = self.processing_config.get("jpeg_quality", 95)
-                            
-                            # Always resize cached images to target dimension (allow upscale)
-                            cache_img, was_cache_resized = ImageProcessor.resize_image_smart(
-                                img.copy(),
-                                max_dimension,
-                                method="lanczos",
-                                allow_upscale=True
-                            )
-                            
-                            # Save and get size statistics
-                            _, original_size, saved_size = ImageProcessor.save_resized_image(
-                                cache_img,
-                                image_path,
-                                self.export_dir,
-                                cache_format=cache_format,
-                                jpeg_quality=jpeg_quality
-                            )
-                        
-                        # Generate caption with timing
-                        import time
-                        start_time = time.time()
-                        
-                        # Pass PIL Image directly to model
+                    processed_img, metadata = self.batch_processor.image_processor.prepare_image_for_inference(
+                        image_path=image_path,
+                        processing_config=self.processing_config,
+                        export_dir=self.export_dir
+                    )
+
+                    file_size = metadata["file_size"]
+                    dimensions_display = metadata["dimensions"]
+                    img_format = metadata["img_format"]
+
+                    # Generate caption with timing
+                    import time
+                    start_time = time.time()
+
+                    # Pass PIL Image directly to model
+                    with torch.inference_mode():
                         caption = self.model.generate_caption(
                             image=processed_img,
                             prompt=self.prompt,
                             **self.inference_config
                         )
-                        
-                        # Apply trigger word/prefix if provided (validate non-empty)
-                        if self.trigger_word:
-                            caption = f"{self.trigger_word}{caption}"
-                        
-                        generation_time = time.time() - start_time
-                        
-                        # Prepare dimensions display
-                        if was_resized:
-                            dimensions_display = f"{original_dimensions}→{resized_dimensions}"
-                        else:
-                            dimensions_display = original_dimensions
+
+                    # Apply trigger word/prefix if provided (validate non-empty)
+                    if self.trigger_word:
+                        caption = f"{self.trigger_word}{caption}"
+
+                    generation_time = time.time() - start_time
                     
                     # Store result
                     self.batch_processor.add_result(image_path, caption)
                     
                     # Emit signal with full metadata
-                    self.caption_generated.emit(image_name, caption, generation_time, file_size, dimensions_display, img_format)
+                    self.caption_generated.emit(
+                        image_name,
+                        caption,
+                        generation_time,
+                        file_size,
+                        dimensions_display,
+                        img_format
+                    )
                     
                     logger.debug(f"Generated caption for {image_name}")
                     

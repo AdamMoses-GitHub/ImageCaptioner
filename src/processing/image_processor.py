@@ -1,7 +1,7 @@
 """Image validation and directory scanning."""
 
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any, Optional
 from PIL import Image
 import logging
 
@@ -138,6 +138,90 @@ class ImageProcessor:
                 "name": image_path.name,
                 "error": str(e)
             }
+
+    def prepare_image_for_inference(
+        self,
+        image_path: Path,
+        processing_config: Dict[str, Any],
+        export_dir: Optional[Path] = None
+    ) -> Tuple[Image.Image, Dict[str, Any]]:
+        """
+        Load and preprocess an image for inference, with optional resize caching.
+        
+        Args:
+            image_path: Path to image file
+            processing_config: Processing configuration (resize settings)
+            export_dir: Optional export directory for cached resized images
+        
+        Returns:
+            Tuple of (processed_image, metadata)
+        """
+        # File metadata
+        file_size = image_path.stat().st_size
+
+        with Image.open(image_path) as img:
+            original_width, original_height = img.size
+            img_format = img.format or 'Unknown'
+            original_dimensions = f"{original_width}x{original_height}"
+
+            # Apply resize if enabled
+            resize_enabled = processing_config.get("resize_before_inference", True)
+            max_dimension = processing_config.get("max_dimension", 1024)
+            cache_resized = processing_config.get("cache_resized_images", False)
+
+            # Work with copy to avoid modifying original
+            processed_img = img.copy()
+            was_resized = False
+            resized_dimensions = original_dimensions
+
+            # Apply resize for inference if enabled (smart resize - downscale only)
+            if resize_enabled:
+                processed_img, was_resized = self.resize_image_smart(
+                    processed_img,
+                    max_dimension,
+                    method="lanczos",
+                    allow_upscale=False
+                )
+                if was_resized:
+                    new_width, new_height = processed_img.size
+                    resized_dimensions = f"{new_width}x{new_height}"
+                    logger.debug(
+                        f"Resized {image_path.name}: {original_dimensions} → {resized_dimensions}"
+                    )
+
+            # Cache resized image if option enabled (always resize to target dimension)
+            if cache_resized and export_dir is not None:
+                cache_format = processing_config.get("cache_format", "original")
+                jpeg_quality = processing_config.get("jpeg_quality", 95)
+
+                # Always resize cached images to target dimension (allow upscale)
+                cache_img, _ = self.resize_image_smart(
+                    img.copy(),
+                    max_dimension,
+                    method="lanczos",
+                    allow_upscale=True
+                )
+
+                self.save_resized_image(
+                    cache_img,
+                    image_path,
+                    export_dir,
+                    cache_format=cache_format,
+                    jpeg_quality=jpeg_quality
+                )
+
+            if was_resized:
+                dimensions_display = f"{original_dimensions}→{resized_dimensions}"
+            else:
+                dimensions_display = original_dimensions
+
+        metadata = {
+            "file_size": file_size,
+            "dimensions": dimensions_display,
+            "img_format": img_format
+        }
+
+        return processed_img, metadata
     
     @staticmethod
     def resize_image_smart(

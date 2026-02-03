@@ -4,7 +4,8 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QMessageBox, QSplitter, QScrollArea
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QDesktopServices
 from pathlib import Path
 from datetime import datetime
 import logging
@@ -535,11 +536,16 @@ class MainWindow(QMainWindow):
                 if failed_formats:
                     message += f"\n\nFailed formats: {', '.join(failed_formats)}"
                 
-                QMessageBox.information(
-                    self,
-                    "Export Complete",
-                    message
-                )
+                msg_box = QMessageBox(self)
+                msg_box.setWindowTitle("Export Complete")
+                msg_box.setIcon(QMessageBox.Information)
+                msg_box.setText(message)
+                open_btn = msg_box.addButton("Open Export Folder", QMessageBox.ActionRole)
+                msg_box.addButton(QMessageBox.Ok)
+                msg_box.exec()
+
+                if msg_box.clickedButton() == open_btn:
+                    QDesktopServices.openUrl(QUrl.fromLocalFile(str(output_dir)))
                 logger.info(f"Export complete: {export_status}")
             else:
                 QMessageBox.warning(

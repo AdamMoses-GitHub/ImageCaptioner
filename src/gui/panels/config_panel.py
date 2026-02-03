@@ -9,6 +9,12 @@ from PySide6.QtCore import Qt, Signal
 import logging
 
 from config.defaults import DEFAULT_CONFIG
+from utils.validators import (
+    validate_temperature,
+    validate_max_tokens,
+    validate_top_p,
+    validate_repetition_penalty
+)
 
 logger = logging.getLogger(__name__)
 
@@ -289,10 +295,29 @@ class ConfigPanel(QWidget):
         
         # Inference settings
         inference_config = config.get("inference", {})
-        self.temp_spin.setValue(inference_config.get("temperature", 0.2))
-        self.max_tokens_spin.setValue(inference_config.get("max_new_tokens", 512))
-        self.top_p_spin.setValue(inference_config.get("top_p", 0.9))
-        self.rep_penalty_spin.setValue(inference_config.get("repetition_penalty", 1.1))
+        temp_value = inference_config.get("temperature", 0.2)
+        if not validate_temperature(temp_value)[0]:
+            logger.warning("Invalid temperature in config. Falling back to default.")
+            temp_value = DEFAULT_CONFIG["inference"]["temperature"]
+        self.temp_spin.setValue(temp_value)
+
+        max_tokens_value = inference_config.get("max_new_tokens", 512)
+        if not validate_max_tokens(max_tokens_value)[0]:
+            logger.warning("Invalid max_new_tokens in config. Falling back to default.")
+            max_tokens_value = DEFAULT_CONFIG["inference"]["max_new_tokens"]
+        self.max_tokens_spin.setValue(max_tokens_value)
+
+        top_p_value = inference_config.get("top_p", 0.9)
+        if not validate_top_p(top_p_value)[0]:
+            logger.warning("Invalid top_p in config. Falling back to default.")
+            top_p_value = DEFAULT_CONFIG["inference"]["top_p"]
+        self.top_p_spin.setValue(top_p_value)
+
+        rep_penalty_value = inference_config.get("repetition_penalty", 1.1)
+        if not validate_repetition_penalty(rep_penalty_value)[0]:
+            logger.warning("Invalid repetition_penalty in config. Falling back to default.")
+            rep_penalty_value = DEFAULT_CONFIG["inference"]["repetition_penalty"]
+        self.rep_penalty_spin.setValue(rep_penalty_value)
         
         # Processing settings
         processing_config = config.get("processing", {})

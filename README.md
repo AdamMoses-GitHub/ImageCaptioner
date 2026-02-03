@@ -150,6 +150,44 @@ export:
 
 Modify settings through the GUI or edit the file directly.
 
+## Configuration Reference
+
+Below is a concise reference of commonly used settings and valid ranges.
+
+### Model
+
+| Key | Type | Default | Notes |
+|-----|------|---------|-------|
+| model.name | string | llava-hf/llava-1.5-7b-hf | Hugging Face model id |
+| model.device | string | auto | auto, cpu, cuda |
+| model.quantization | string | auto | auto, none, 4bit, 8bit |
+
+### Inference
+
+| Key | Type | Default | Valid Range |
+|-----|------|---------|-------------|
+| inference.temperature | float | 0.2 | 0.0 to 2.0 |
+| inference.max_new_tokens | int | 512 | 1 to 2048 |
+| inference.top_p | float | 0.9 | 0.0 to 1.0 |
+| inference.repetition_penalty | float | 1.1 | 1.0 to 2.0 |
+| inference.trigger_word | string | "" | Prefix added to captions |
+
+### Processing
+
+| Key | Type | Default | Notes |
+|-----|------|---------|-------|
+| processing.resize_before_inference | bool | true | Downscale only by default |
+| processing.max_dimension | int | 1024 | Maximum width/height in pixels |
+| processing.cache_resized_images | bool | false | Saves resized images to export folder |
+| processing.cache_format | string | original | original, png, jpeg |
+| processing.jpeg_quality | int | 95 | 1 to 100 |
+
+### Export
+
+| Key | Type | Default | Notes |
+|-----|------|---------|-------|
+| export.formats | list | ["txt_individual"] | txt_individual, csv, json, txt_batch |
+
 ## Keyboard Shortcuts
 
 | Shortcut | Action |
