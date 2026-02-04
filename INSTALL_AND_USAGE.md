@@ -143,9 +143,10 @@ python src/main.py --verbose
 
 **Steps:**
 1. Launch the app: `python src/main.py`
-2. In the **Prompt** panel, click **Create New Prompt** and define it:
-   - Example: *"Provide a single-sentence caption describing the primary subject and action in this image."*
-   - Save as: `dataset_captions`
+2. In the **Prompt** panel, select a preset or create a custom one:
+   - Available presets: "Detailed Description", "Short Description", "List Objects and People", "Scene and Mood", "What's Happening", "Technical Details"
+   - Or create custom: *"Provide a single-sentence caption describing the primary subject and action in this image."*
+   - Save custom prompts for reuse
 3. In the **Config** panel, set:
    - **Temperature**: 0.1 (lower = more consistent)
    - **Max Tokens**: 50 (keeps captions short)
@@ -321,17 +322,24 @@ inference:
   top_p: 0.9                              # Nucleus sampling
   top_k: 50                               # Top-k sampling
   repetition_penalty: 1.0                 # Penalize repeated words
-  trigger_word: ""                        # Prefix for all captions
+  do_sample: true                         # Use sampling vs greedy decoding
+  num_beams: 1                            # Beam search width (1=disabled)
+  trigger_word: ""                        # Prefix for all captions (e.g., 'my_lora ')
 ```
 
 ### Processing
 
 ```yaml
 processing:
-  batch_size: 4                           # Images per forward pass
+  recursive: false                        # Scan subdirectories?
+  skip_errors: true                       # Continue on corrupted images
+  clear_cache_interval: 10                # Clear CUDA cache every N images
   resize_before_inference: false          # Downscale images?
   max_dimension: 1024                     # Max width/height (pixels)
-  skip_errors: true                       # Continue on corrupted images
+  resize_method: lanczos                  # Resize algorithm (lanczos, bicubic, bilinear)
+  cache_resized_images: false             # Save resized images to disk
+  cache_format: jpeg                      # Format for cached images
+  jpeg_quality: 95                        # JPEG quality (1-100)
 ```
 
 ### Export
@@ -344,6 +352,14 @@ export:
     - json                                # Single JSON file
     - txt_batch                           # One .txt with all captions
   csv_relative_paths: true                # Use relative paths in CSV
+  output_directory: null                  # Custom output dir (null = same as input)
+
+ui:
+  last_input_directory: null              # Remembers last folder
+  last_output_directory: null             # Remembers last export folder
+  window_geometry: null                   # Saves window size/position
+
+custom_prompts: []                        # User-created prompt templates
 ```
 
 ---
@@ -365,13 +381,13 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 ### "CUDA out of memory"
 
-**Problem**: Image batch is too large for your GPU.
+**Problem**: GPU running out of memory during inference.
 
 **Solution**:
-1. Reduce batch size in **Model Settings** (try 2 or 1)
-2. Enable 8-bit quantization (uses ~30% less VRAM)
-3. Use CPU mode (slow but works)
-4. Downscale images: Enable `resize_before_inference` in config
+1. Enable 4-bit quantization (uses ~50% less VRAM than 8-bit)
+2. Downscale images: Set `resize_before_inference: true` and `max_dimension: 512` in config
+3. Increase cache clearing frequency: `clear_cache_interval: 5`
+4. Use CPU mode (slow but works)
 
 ### Model download stuck or fails
 
@@ -415,14 +431,14 @@ sudo apt-get install libxkbcommon0 libdbus-1-3  # Debian/Ubuntu
 
 **Maximize Speed:**
 - Use 8-bit quantization (faster than 4-bit, still memory-efficient)
-- Increase batch size to 8 or 16 (if VRAM allows)
 - Downscale images before processing (`max_dimension: 512`)
 - Use GPU (NVIDIA CUDA is ~50x faster than CPU)
+- Enable `cache_resized_images: true` to avoid repeated preprocessing
 
 **Minimize Memory:**
 - Use 4-bit quantization (half the VRAM of 8-bit)
-- Reduce batch size to 1 or 2
-- Enable image caching to avoid repeated preprocessing
+- Set `clear_cache_interval: 5` to clear CUDA cache more frequently
+- Downscale images: `max_dimension: 512` or lower
 
 **Best Quality:**
 - Use full precision (quantization: none) if you have 24GB+ VRAM

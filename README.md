@@ -73,11 +73,12 @@ python src/main.py --verbose
 | **PyTorch 2.1+** | Deep learning framework | The gold standard for neural networks; CUDA integration is bulletproof |
 | **Transformers (4.37+)** | Model loading & inference | Hugging Face's library is the ecosystem standard; LLaVA support is first-class |
 | **LLaVA 1.5 7B** | Vision-language model | Best open-source image-to-text model at 7B params; context-aware and fast enough |
-| **PySide6** | GUI framework | Qt bindings; native look on all platforms without the GPL headache |
+| **PySide6 (6.6+)** | GUI framework | Qt bindings; native look on all platforms without the GPL headache |
 | **Accelerate (0.25+)** | Model optimization | Simplifies multi-GPU / mixed-precision / quantization setup |
 | **bitsandbytes (0.42+)** | 4-bit/8-bit quantization | SOTA quantization; keeps models on consumer GPUs |
 | **Pillow (10.0+)** | Image I/O | Industry standard; handles every image format you'll throw at it |
 | **PyYAML (6.0+)** | Configuration files | Human-readable config without TOML debates |
+| **Hugging Face Hub (0.20+)** | Model downloading & caching | Seamless model management with progress tracking |
 
 ---
 
