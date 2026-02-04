@@ -6,6 +6,8 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1.0-red?logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white)](LICENSE)
 
+![ImageCaptioner Application](./screenshot.jpg)
+
 ## 🎯 About
 
 Tired of staring at hundreds of images wondering what they're about? Meet **ImageCaptioner**—a desktop application that does the heavy lifting for you. Using the powerful LLaVA 1.5 7B vision-language model, it generates detailed, contextual captions for your entire image collection in minutes, not weeks. Whether you're building datasets, archiving photos, or just trying to remember what's in that folder from 2019, this app has your back.
