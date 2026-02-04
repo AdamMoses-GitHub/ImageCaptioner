@@ -1,252 +1,108 @@
 # ImageCaptioner
 
-A modern desktop application for batch image captioning using the LLaVA 1.5 7B vision-language model with GPU acceleration support.
+*Because describing thousands of images manually is like debugging without Stack Overflow.*
 
-## Features
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.1.0-red?logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![MIT License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white)](LICENSE)
 
-- **Advanced Vision-Language AI**: LLaVA 1.5 7B model for detailed, contextual image descriptions
-- **GPU Acceleration**: CUDA support with automatic 4-bit/8-bit quantization for efficient memory usage
-- **Batch Processing**: Process entire directories with real-time progress tracking and cancellation
-- **Flexible Export Options**: TXT, CSV, JSON, or combined formats
-- **Customizable Prompts**: Pre-built templates with ability to create and save custom prompts
-- **Model Management**: Download, cache, and status indicators for seamless model handling
-- **Cross-Platform**: Windows, macOS, and Linux support
-- **Verbose Logging**: Debug mode for troubleshooting and development
+## 🎯 About
 
-## Installation
+Tired of staring at hundreds of images wondering what they're about? Meet **ImageCaptioner**—a desktop application that does the heavy lifting for you. Using the powerful LLaVA 1.5 7B vision-language model, it generates detailed, contextual captions for your entire image collection in minutes, not weeks. Whether you're building datasets, archiving photos, or just trying to remember what's in that folder from 2019, this app has your back.
 
-### 1. Clone the Repository
+The goal here is simple: make AI-powered image captioning accessible without needing a PhD in machine learning or a server farm. No API calls, no monthly bills, no nonsense. Just drop your images in, tweak a prompt if you want, and get accurate captions in the format you need.
+
+**GitHub**: [https://github.com/AdamMoses-GitHub/ImageCaptioner](https://github.com/AdamMoses-GitHub/ImageCaptioner)
+
+---
+
+## ✨ What It Does
+
+### User-Facing Features
+
+- **🚀 GPU-Accelerated Captioning**: CUDA support with automatic 4-bit/8-bit quantization keeps memory usage sane on consumer hardware
+- **📦 Batch Processing That Works**: Drop entire folders—the app processes them all with real-time progress and lets you cancel anytime (yes, actually cancel)
+- **🎨 Flexible Export Formats**: Get results as TXT, CSV, JSON, or a combo pack—whatever your pipeline needs
+- **🧠 Prompt Templates**: Pre-built prompts for common tasks, plus the freedom to craft custom ones and save them for later
+- **🔧 Smart Model Management**: Handles downloading, caching, and checking model status so you don't have to SSH into a server
+- **🖥️ Cross-Platform GUI**: Windows, macOS, and Linux—no terminal wizardry required (though `--verbose` logging is there if you want it)
+
+### The Nerdy Stuff
+
+- **Quantization Smarts**: Seamlessly switches between 4-bit and 8-bit modes based on your hardware without sacrificing quality
+- **Processor-Agnostic**: Built on Hugging Face transformers and accelerate libraries—works with any device PyTorch supports
+- **No Memory Bloat**: Intelligent cache management and batch size tuning prevent your 8GB GPU from catching fire
+- **Typed Python**: Full type hints throughout the codebase because runtime errors at 3 AM are nobody's friend
+- **Modular Architecture**: Vision model abstraction, separate inference workers, and clean dependency injection—easy to extend or swap in a better model tomorrow
+
+---
+
+## 🚀 Quick Start
+
+For detailed setup instructions, see [INSTALL_AND_USAGE.md](INSTALL_AND_USAGE.md).
+
+### TL;DR
 
 ```bash
-git clone https://github.com/yourusername/ImageCaptioner.git
+# Clone the repo
+git clone https://github.com/AdamMoses-GitHub/ImageCaptioner.git
 cd ImageCaptioner
-```
 
-### 2. Install PyTorch with CUDA Support
-
-```bash
+# Install PyTorch with CUDA support (required first!)
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-```
 
-### 3. Install Remaining Dependencies
-
-```bash
+# Install everything else
 pip install -r requirements.txt
-```
 
-## Requirements
-
-- **Python**: 3.9 or higher
-- **GPU**: 4GB+ VRAM recommended (NVIDIA CUDA 12.1+)
-  - CPU fallback supported but significantly slower
-- **Disk Space**: ~13GB for model cache
-- **RAM**: 8GB+ recommended for optimal performance
-- **Operating System**: Windows 10+, macOS 10.15+, or Linux
-
-### Dependencies
-
-Core libraries:
-- `torch>=2.1.0` with CUDA support
-- `torchvision>=0.16.0`
-- `transformers>=4.37.0`
-- `PySide6>=6.6.0` (GUI framework)
-- `accelerate>=0.25.0` (model optimization)
-- `bitsandbytes>=0.42.0` (quantization)
-- `huggingface-hub>=0.20.0` (model management)
-- `pyyaml>=6.0` (configuration)
-
-## Usage
-
-### Run the Application
-
-```bash
+# Run the app
 python src/main.py
 ```
 
-### Run with Verbose Logging
+### With Verbose Logging (for when things get weird)
 
 ```bash
 python src/main.py --verbose
 ```
 
-### Debug Mode (VS Code)
+---
 
-Select "Debug Application" from the Run menu in VS Code.
+## 🔧 Tech Stack
 
-## Application Workflow
+| Component | Purpose | Why This One |
+|-----------|---------|--------------|
+| **PyTorch 2.1+** | Deep learning framework | The gold standard for neural networks; CUDA integration is bulletproof |
+| **Transformers (4.37+)** | Model loading & inference | Hugging Face's library is the ecosystem standard; LLaVA support is first-class |
+| **LLaVA 1.5 7B** | Vision-language model | Best open-source image-to-text model at 7B params; context-aware and fast enough |
+| **PySide6** | GUI framework | Qt bindings; native look on all platforms without the GPL headache |
+| **Accelerate (0.25+)** | Model optimization | Simplifies multi-GPU / mixed-precision / quantization setup |
+| **bitsandbytes (0.42+)** | 4-bit/8-bit quantization | SOTA quantization; keeps models on consumer GPUs |
+| **Pillow (10.0+)** | Image I/O | Industry standard; handles every image format you'll throw at it |
+| **PyYAML (6.0+)** | Configuration files | Human-readable config without TOML debates |
 
-1. **Configure Model Settings**
-   - Select model variant (full precision or quantized)
-   - Choose inference device (GPU/CPU)
-   - Set batch size and other parameters
+---
 
-2. **Select Images**
-   - Choose input folder or individual images
-   - Supported formats: JPG, PNG, BMP, GIF, WebP, TIFF
+## 📚 What Else?
 
-3. **Customize Caption Prompt**
-   - Use preset templates or create custom prompts
-   - Save frequently used prompts for reuse
+### Contributing
 
-4. **Run Captioning**
-   - Monitor real-time progress with visual indicators
-   - Cancel anytime if needed
+Found a bug? Have an idea? [Open an issue](https://github.com/yourusername/ImageCaptioner/issues) or submit a pull request. Contributions are welcome.
 
-5. **Export Results**
-   - Choose export format (TXT, CSV, JSON, or Combined)
-   - Captions automatically saved to specified directory
+### Known Limitations (Let's Be Honest)
 
-## Project Structure
+- **Memory Requirements**: The model is ~13GB. You'll need VRAM or patience (CPU mode is *slow*).
+- **Image Diversity**: LLaVA 1.5 7B is good, not perfect—mileage varies on highly specialized or artistic images.
+- **Language**: English-centric model; non-English captions are rough around the edges.
+- **Single-GPU**: Multi-GPU support isn't implemented yet (patches welcome).
 
-```
-ImageCaptioner/
-├── src/
-│   ├── main.py                 # Application entry point
-│   ├── gui/
-│   │   ├── main_window.py      # Main window and layout
-│   │   ├── panels/             # UI panels (config, input, output, prompts)
-│   │   └── workers/            # Worker threads for async operations
-│   ├── models/
-│   │   ├── llava.py            # LLaVA model wrapper
-│   │   ├── base.py             # Base model interface
-│   │   └── downloader.py       # Model downloading and caching
-│   ├── processing/
-│   │   ├── batch_processor.py  # Batch image processing
-│   │   ├── export.py           # Export to various formats
-│   │   └── image_processor.py  # Image preprocessing and validation
-│   ├── config/
-│   │   ├── app_config.py       # Configuration management
-│   │   ├── defaults.py         # Default application settings
-│   │   └── prompts.py          # Prompt templates
-│   └── utils/
-│       ├── logger.py           # Logging utilities
-│       └── validators.py       # Input validation
-├── config/
-│   └── settings.yaml           # User settings (auto-generated)
-├── .vscode/
-│   └── launch.json             # VS Code debug configurations
-├── requirements.txt            # Python dependencies
-└── README.md                   # This file
-```
+### License
 
-## Configuration
+MIT License—use it, fork it, break it, fix it. See [LICENSE](LICENSE) for details.
 
-Application settings are stored in `config/settings.yaml`:
+---
 
-```yaml
-model:
-  name: "llava-hf/llava-1.5-7b-hf"
-  device: "cuda"
-  quantization: "4bit"
-
-processing:
-  batch_size: 4
-  num_workers: 2
-
-export:
-  default_format: "txt"
-  output_directory: "./captions"
-```
-
-Modify settings through the GUI or edit the file directly.
-
-## Configuration Reference
-
-Below is a concise reference of commonly used settings and valid ranges.
-
-### Model
-
-| Key | Type | Default | Notes |
-|-----|------|---------|-------|
-| model.name | string | llava-hf/llava-1.5-7b-hf | Hugging Face model id |
-| model.device | string | auto | auto, cpu, cuda |
-| model.quantization | string | auto | auto, none, 4bit, 8bit |
-
-### Inference
-
-| Key | Type | Default | Valid Range |
-|-----|------|---------|-------------|
-| inference.temperature | float | 0.2 | 0.0 to 2.0 |
-| inference.max_new_tokens | int | 512 | 1 to 2048 |
-| inference.top_p | float | 0.9 | 0.0 to 1.0 |
-| inference.repetition_penalty | float | 1.1 | 1.0 to 2.0 |
-| inference.trigger_word | string | "" | Prefix added to captions |
-
-### Processing
-
-| Key | Type | Default | Notes |
-|-----|------|---------|-------|
-| processing.resize_before_inference | bool | true | Downscale only by default |
-| processing.max_dimension | int | 1024 | Maximum width/height in pixels |
-| processing.cache_resized_images | bool | false | Saves resized images to export folder |
-| processing.cache_format | string | original | original, png, jpeg |
-| processing.jpeg_quality | int | 95 | 1 to 100 |
-
-### Export
-
-| Key | Type | Default | Notes |
-|-----|------|---------|-------|
-| export.formats | list | ["txt_individual"] | txt_individual, csv, json, txt_batch |
-
-## Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+O` | Open image folder |
-| `Ctrl+S` | Save results |
-| `Ctrl+Q` | Quit application |
-| `F1` | View help |
-
-## Troubleshooting
-
-### Out of Memory (CUDA)
-- Reduce batch size in Model Settings
-- Enable 8-bit quantization instead of 4-bit
-- Use CPU processing (slower but uses less VRAM)
-
-### Model Download Fails
-- Check internet connection
-- Verify Hugging Face Hub access: `huggingface-cli login`
-- Model cache location: `~/.cache/huggingface/hub/`
-
-### PySide6 Import Error
-```bash
-pip install --upgrade PySide6
-```
-
-### Slow Processing
-- Enable GPU acceleration (check CUDA availability)
-- Reduce image resolution
-- Increase batch size (if VRAM allows)
-
-## Performance Tips
-
-- **Batch Size**: Higher = faster but more VRAM (default: 4)
-- **Quantization**: 8-bit faster than 4-bit, 4-bit uses less VRAM
-- **GPU**: NVIDIA GPUs significantly faster than CPU
-- **Images**: Resize large images before processing for faster inference
-
-## Contributing
-
-Contributions welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see LICENSE file for details.
-
-## Acknowledgments
-
-- [LLaVA Model](https://github.com/haotian-liu/LLaVA) - Vision-language model
-- [Hugging Face](https://huggingface.co/) - Model hosting and transformers library
-- [PySide6](https://wiki.qt.io/Qt_for_Python) - Qt Python bindings
-
-## Support
+<sub>
+**Keywords**: image captioning, vision-language model, LLaVA, batch processing, GPU acceleration, CUDA quantization, AI image analysis, desktop GUI, PyTorch, Hugging Face transformers, computer vision, deep learning, image description generation, open-source ML
+</sub>
 
 For issues, feature requests, or questions:
 - Open an [Issue](https://github.com/yourusername/ImageCaptioner/issues)
