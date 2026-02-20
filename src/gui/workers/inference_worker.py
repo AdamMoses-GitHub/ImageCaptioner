@@ -111,6 +111,61 @@ class InferenceWorker(QThread):
                 model_info = self.model.get_model_info()
                 logger.info(f"Model loaded successfully: {model_info}")
                 logger.info("=== Model Ready for Inference ===")
+            except RuntimeError as e:
+                # Handle CUDA out-of-memory errors with automatic fallback
+                if "out of memory" in str(e).lower() or "cuda out of memory" in str(e).lower():
+                    current_quant = self.model_config.get("quantization", "auto")
+                    
+                    if current_quant in ["8bit", "auto"]:
+                        # Fallback to 4-bit quantization
+                        logger.warning("CUDA OOM detected, retrying with 4-bit quantization...")
+                        self.status_message.emit("GPU memory full - switching to 4-bit mode...")
+                        self.model_config["quantization"] = "4bit"
+                        self.model = LLaVAModel(
+                            device=self.model_config.get("device", "auto"),
+                            quantization="4bit"
+                        )
+                        try:
+                            self.model.load()
+                            self.status_message.emit("Model loaded in 4-bit mode")
+                            logger.info("Successfully loaded model with 4-bit quantization")
+                        except Exception as e2:
+                            error_msg = f"Failed to load model even with 4-bit: {str(e2)}"
+                            logger.error(error_msg)
+                            self.status_message.emit(error_msg)
+                            self.finished.emit(False, {"error": error_msg})
+                            return
+                    elif current_quant == "4bit":
+                        # Fallback to CPU mode
+                        logger.warning("4-bit OOM detected, falling back to CPU (slow)...")
+                        self.status_message.emit("Switching to CPU mode (processing will be slower)...")
+                        self.model_config["device"] = "cpu"
+                        self.model_config["quantization"] = "none"
+                        self.model = LLaVAModel(device="cpu", quantization="none")
+                        try:
+                            self.model.load()
+                            self.status_message.emit("Model loaded in CPU mode (slower)")
+                            logger.info("Successfully loaded model on CPU")
+                        except Exception as e2:
+                            error_msg = f"Failed to load model on CPU: {str(e2)}"
+                            logger.error(error_msg)
+                            self.status_message.emit(error_msg)
+                            self.finished.emit(False, {"error": error_msg})
+                            return
+                    else:
+                        # Already on optimal settings, re-raise
+                        error_msg = f"Failed to load model: {str(e)}"
+                        logger.error(error_msg)
+                        self.status_message.emit(error_msg)
+                        self.finished.emit(False, {"error": error_msg})
+                        return
+                else:
+                    # Non-OOM RuntimeError, re-raise
+                    error_msg = f"Failed to load model: {str(e)}"
+                    logger.error(error_msg)
+                    self.status_message.emit(error_msg)
+                    self.finished.emit(False, {"error": error_msg})
+                    return
             except Exception as e:
                 error_msg = f"Failed to load model: {str(e)}"
                 logger.error(error_msg)

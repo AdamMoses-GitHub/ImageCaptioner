@@ -42,6 +42,7 @@ class MainWindow(QMainWindow):
         
         self.setup_ui()
         self.connect_signals()
+        self.setup_keyboard_shortcuts()
         self.load_configuration()
         
         # Check model status on startup
@@ -203,6 +204,39 @@ class MainWindow(QMainWindow):
     def on_prompt_changed(self, prompt):
         """Handle prompt changes."""
         logger.debug(f"Prompt updated: {prompt[:50]}...")
+    
+    def setup_keyboard_shortcuts(self):
+        """Configure keyboard shortcuts for common actions."""
+        from PySide6.QtGui import QShortcut, QKeySequence
+        
+        # F5: Start processing
+        self.shortcut_start = QShortcut(QKeySequence("F5"), self)
+        self.shortcut_start.activated.connect(self._handle_start_shortcut)
+        
+        # Escape: Stop processing
+        self.shortcut_stop = QShortcut(QKeySequence("Esc"), self)
+        self.shortcut_stop.activated.connect(self._handle_stop_shortcut)
+        
+        # Ctrl+O: Open folder browser
+        self.shortcut_browse = QShortcut(QKeySequence("Ctrl+O"), self)
+        self.shortcut_browse.activated.connect(self._handle_browse_shortcut)
+        
+        logger.info("Keyboard shortcuts enabled: F5=Start, Esc=Stop, Ctrl+O=Browse")
+    
+    def _handle_start_shortcut(self):
+        """Handle F5 shortcut for starting processing."""
+        if self.start_btn.isEnabled() and not self.is_processing:
+            self.start_processing()
+    
+    def _handle_stop_shortcut(self):
+        """Handle Esc shortcut for stopping processing."""
+        if self.stop_btn.isEnabled() and self.is_processing:
+            self.stop_processing()
+    
+    def _handle_browse_shortcut(self):
+        """Handle Ctrl+O shortcut for opening folder browser."""
+        if not self.is_processing:
+            self.input_panel.browse_directory()
     
     def load_configuration(self):
         """Load saved configuration into UI."""
